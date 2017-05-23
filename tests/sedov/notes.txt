@@ -1,0 +1,17 @@
+Taken from the sedov test (/astro/users/trq/nchil/work/gasoline_tests/sedov)
+
+sedovblast.py and sedovblast_ch.py are taken from there are are used to analyze
+the results.
+
+Files in this directory:
+    sedovblast_ch.py
+        Python script used to analyze the original test
+    sedovblast.py
+        Python script used to analyze the original test
+    sedov.param
+        .param file for this simulation
+    sedov.param_original
+        Original .param file for the original sedov test
+    sedov.std
+        ICs for this simulation
+

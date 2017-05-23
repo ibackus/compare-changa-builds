@@ -1,0 +1,12 @@
+This is a modified version of the ChaNGa testshock test.  The ICs for this 
+simulation are a glass.  Additionally, the .param file may be altered.
+
+Files in this folder:
+
+    shocktube.param
+        .param file for this simulation
+    shocktube.param_original
+        Original .param file for the ChaNGa testshock test
+    shocktube.std
+        ICs for this simulation
+        

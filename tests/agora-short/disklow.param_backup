@@ -1,0 +1,61 @@
+# Run and output
+achInFile                = LOW_100G_Zsolar.bin
+achOutName               = disklow
+bParaRead                = 1
+bParaWrite               = 1
+bStandard                = 1
+bVDetails                = 1
+bDoGas                   = 1
+iCheckInterval           = 10
+iLogInterval             = 1
+iOutInterval             = 1
+nSteps                   = 500
+#
+## Timesteps
+# 1 Myr timesteps
+dDelta                   = 0.06708108
+dDumpFrameStep           = 1
+dEta                     = 0.185
+dEtaCourant              = 0.4
+iMaxRung                 = 30
+bKDK                     = 1
+# Tree
+dTheta                   = 0.8
+## Performance Options
+nTruncateRung = 32
+
+### Gas Options
+bGasCooling           = 1
+# bGasAdiabatic           = 1
+# dMeanMolWeight          = 0.59259
+nSmooth			 = 64
+dKpcUnit                 = 1
+dMsolUnit                = 1e9
+dThermalDiffusionCoeff   = 0.03
+dMetalDiffusionCoeff     = 0.01
+#
+# SPH Options
+bViscosityLimiter        = 1
+bViscosityLimitdt        = 1
+dhMinOverSoft		 = 0.143
+bFastGas                 = 1
+dFracFastGas             = 0.1
+#
+# Forces
+# "plummer equivalent" of dx with dx = 80 pc.
+dSoft                    = 0.112
+# dSoft                    = 0.08
+# dResolveJeans            = 3.0
+# From AGORA readme: Njeans**4/gamma/pi; where NJeans = 4
+dResolveJeans            = 3.06
+
+# Star formation
+dPhysDenMin              = 10
+dInitStarMass            = 0.0000859321808
+dCStar                   = 0.0052
+dTempMax                 = 1e10
+bStarForm                = 1
+
+# Feedback
+bFeedBack = 1
+#bAGORAFeedback = 1

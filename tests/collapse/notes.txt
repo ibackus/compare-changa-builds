@@ -1,0 +1,11 @@
+This folder contains a slightly modified version of the ChaNGa testcollapse
+simulation.
+
+Files in this folder:
+    adiabtophat_glass_28721.bin
+        ICs for this simulation
+    adiabtophat_glass_28768_Std.param
+        .param file for the simulation
+    adiabtophat_glass_28768_Std.param_original
+        Original param file from the ChaNGa test
+

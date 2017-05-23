@@ -1,0 +1,14 @@
+Taken from the agora galaxy test (/astro/users/trq/faculty1/cluster/agora/disk)
+Some of the params have been altered for this test, the original params are 
+stored in disklow_pub.param_original
+
+Files in this directory:
+    disklow.director
+        director file, sets parameters for rendering images during simulation
+    disklow.param
+        .param file for the simulation
+    disklow.param_original
+        Original param file for the agora test that this was taken from
+    LOW_100G_Zsolar.bin
+        ICs
+
