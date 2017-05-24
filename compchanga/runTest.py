@@ -54,7 +54,8 @@ def newTestConfig(name, configOpts='', testName=None):
     return basicTestConfig
 
 def makeparam(baseSaveDir, changaDir, testDict, overwrite=True, nproc=None, 
-              changa_args='', charm_dir=None, runner=None):
+              changa_args='', charm_dir=None, runner=None, 
+              userconfigdir=None, **kwargs):
     """
     Makes a run .json file which can be passed to runTest() in order to run a 
     test (basically just makes arguments for runTest.runTest and saves them to 
@@ -83,13 +84,17 @@ def makeparam(baseSaveDir, changaDir, testDict, overwrite=True, nproc=None,
         args['charm_dir'] = charm_dir
         args['nproc'] = nproc
         args['changa_args'] = changa_args
+        if userconfigdir is not None:
+            args['userconfigdir'] = os.path.realpath(userconfigdir)
+        args.update(kwargs)
         saveRunParam(args, savename)
         
     return args, savename, simdir
 
 def runTest(directory, configOpts='', outputDir='.', 
             testName='test', paramname=None, reconfigure=True, runner=None, 
-            nproc=None, changa_args='', charm_dir=None, changaDir=None, **kwargs):
+            nproc=None, changa_args='', charm_dir=None, changaDir=None, 
+             **kwargs):
     """
     Will run a changa test simulation
     
@@ -378,7 +383,8 @@ def buildChanga(directory, nproc=None, copydir=None):
         
     return (p.returncode == 0)
         
-def configureChanga(directory, configOpts='', charm_dir=None, verbose=True):
+def configureChanga(directory, configOpts='', charm_dir=None, verbose=True,
+                    userconfigdir=None):
     """
     Run the ChaNGa configure script in directory, giving it the command-line
     options configOpts.  Can be silenced by setting verbose=False
@@ -397,18 +403,20 @@ def configureChanga(directory, configOpts='', charm_dir=None, verbose=True):
             
         os.chdir(directory)
         cmd = './configure ' + configOpts
-        
-        p = shellRun(cmd, verbose, logfilename)
-        if p.returncode != 0:
+        print 'userconfigdir', userconfigdir
+        with _CopyUserConfig(userconfigdir, os.getcwd()):
             
-            raise RuntimeError, "Could not configure ChaNGa"
-            
-        with open(logfilename,'r') as f:
-            
-            log = f.read()
-            if 'WARNING' in log:
+            p = shellRun(cmd, verbose, logfilename)
+            if p.returncode != 0:
                 
-                raise RuntimeError, 'WARNING caught, could not configure ChaNGa'
+                raise RuntimeError, "Could not configure ChaNGa"
+                
+            with open(logfilename,'r') as f:
+                
+                log = f.read()
+                if 'WARNING' in log:
+                    
+                    raise RuntimeError, 'WARNING caught, could not configure ChaNGa'
             
             
     finally:
@@ -419,7 +427,8 @@ def configureChanga(directory, configOpts='', charm_dir=None, verbose=True):
 
 def configBuildCommit(commit, changaDir='.', configOpts='', outputDir='.',
                       verbose=True, charm_dir=None, nproc=None, 
-                      configDir='configurestuff', recompile=False, **kwargs):
+                      configDir='configurestuff', recompile=False, 
+                      userconfigdir=None, **kwargs):
     """
     Configures and builds a given ChaNGa commit.  commit should be a git
     SHA (partial or full)
@@ -463,9 +472,68 @@ def configBuildCommit(commit, changaDir='.', configOpts='', outputDir='.',
     
     return outputDir
 
+def _copy_w_permissions(src, dest):
+    from subprocess import Popen
+    
+    p = Popen(['cp','-p','--preserve',src,dest])
+    p.wait()
+
+class _CopyUserConfig():
+    """
+    _CopyUserConfig(src, dest)
+    
+    A simple context manager for temporarily copying files from a user 
+    configuration folder (containing e.g. 'configure' and 'Makefile.in') to
+    a ChaNGa folder in order to override the default configure script.
+    
+    Parameters
+    ----------
+    src, dest : string
+        Source and destination folders.  If either is None, then nothing 
+        happens
+        
+    """
+    flist = ['configure', 'Makefile.in']
+    
+    def __init__(self, src, dest):
+        
+        flist = self.flist
+        self.backups = []
+        self.copylist = []
+        if (src is None) or (dest is None):
+            
+            return
+        # Copy every file from src to dest if it exists
+        for fname in flist:
+            f0 = os.path.join(src, fname)
+            f1 = os.path.join(dest, fname)
+            if os.path.exists(f0):
+                if os.path.exists(f1):
+                    # backup original file
+                    backup = f1 + '.backup'
+                    shutil.move(f1, backup)
+                    self.copylist.append(f1)
+                    self.backups.append(backup)
+                    print 'backing up to:', backup
+                print 'copying:', f0, f1
+                _copy_w_permissions(f0, f1)
+    
+    def __enter__(self):
+        
+        return
+    
+    def __exit__(self, *args):
+        
+        for f0, f1 in zip(self.backups, self.copylist):
+            if os.path.exists(f0):
+                # Restore the backup of the original file
+                print 'restoring:', f1
+                shutil.move(f0, f1)
+
 def configBuildChanga(changaDir='.', configOpts='', testName='test', 
                       outputDir='.', copybinaries=True, verbose=True, 
-                      charm_dir=None, recompile=True, **kwargs):
+                      charm_dir=None, recompile=True, userconfigdir=None,
+                      **kwargs):
     """
     Builds and configures changa, optionally copying binares to the derived
     output directory
@@ -485,7 +553,8 @@ def configBuildChanga(changaDir='.', configOpts='', testName='test',
             print 'skipping, ChaNGa already compiled'
             return True
     # Configure ChaNGa
-    configureChanga(changaDir, configOpts, charm_dir, verbose)
+    configureChanga(changaDir, configOpts, charm_dir, verbose, 
+                    userconfigdir=userconfigdir)
     if copybinaries:
         copydir = outputDir
     else:

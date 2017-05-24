@@ -1,3 +1,3 @@
 #!/bin/bash
-cp -R src/* ./
+cp -uR src/* ./
 

@@ -17,7 +17,7 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 import json
 
-def buildChanga(filelist=None, filename=None, newonly=False):
+def buildChanga(filelist=None, filename=None, newonly=False, require_success=False):
     """
     A running utilitiy to build changa. 
     All exceptions are caught and the failure is returned
@@ -62,6 +62,8 @@ def buildChanga(filelist=None, filename=None, newonly=False):
         try:
             result = runTest.configBuildChanga(**argDict)
         except:
+            if require_success:
+                raise
             result  = False
         results.append(result)
 
@@ -77,7 +79,7 @@ def buildChanga(filelist=None, filename=None, newonly=False):
         print string
     return np.all(results)
 
-def runManyTests(flist, newonly=False, proc=None):
+def runManyTests(flist, newonly=False, proc=None, require_success=False):
     """
     run the paramfiles in file flist (flist is a filename or a list of param
     files)
@@ -91,9 +93,9 @@ def runManyTests(flist, newonly=False, proc=None):
     else:
         paramfiles = flist
     if proc is None:
-        results = [runOneTest(paramfile, newonly) for paramfile in paramfiles]
+        results = [runOneTest(paramfile, newonly, require_success=require_success) for paramfile in paramfiles]
     else:
-        results = parallelRunTests(paramfiles, proc, newonly)
+        results = parallelRunTests(paramfiles, proc, newonly, require_success=require_success)
     
     # print a summary
     print "\nRun summary:"
@@ -107,13 +109,13 @@ def runManyTests(flist, newonly=False, proc=None):
         print string
     return np.all(results)
 
-def parallelRunTests(paramfiles, proc, newonly=False):
+def parallelRunTests(paramfiles, proc, newonly=False, require_success=False):
     """
     Run tests in parallel
     """
     
     
-    args = [[paramfile, newonly] for paramfile in paramfiles]
+    args = [[paramfile, newonly, require_success] for paramfile in paramfiles]
     proc = min([cpu_count(), proc])
     print 'Spawning {0} processes'.format(proc)
     pool = Pool(proc)
@@ -135,7 +137,7 @@ def _runOneTest(args):
     """
     return runOneTest(*args)
 
-def runOneTest(paramfile, newonly=False):
+def runOneTest(paramfile, newonly=False, require_success=False):
     """
     Run a single test from the paramfile
     """
@@ -156,6 +158,8 @@ def runOneTest(paramfile, newonly=False):
     try:
         success = runTest.runTest(**args)
     except:
+        if require_success:
+            raise
         success = False
     
     if success:

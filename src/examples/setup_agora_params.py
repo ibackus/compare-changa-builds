@@ -12,14 +12,17 @@ Created on Tue Oct  4 13:23:16 2016
 
 @author: ibackus
 """
-import runTest
-from runTest import newTestConfig
+from compchanga import runTest
+from compchanga.runTest import newTestConfig
 
 # ----------------------------------------------------------------
-# Settings
+# Optional settings
 # ----------------------------------------------------------------
-# overwrite param files?
+# overwrite param files?  This will also make the simulation appear incomplete
 overwrite = False
+# I want to supply my own configure script to ChaNGa to enable extra configure
+# parameters
+userconfigdir = '../userconfig/sphpressureterms/'
 # Use a different runner (mpirun, charmrun, etc...)?
 runner = None
 logsavename = 'agora-short.log'
@@ -27,6 +30,9 @@ logsavename = 'agora-short.log'
 nproc = 1
 # extra args for changa
 changa_args = '-p 1'
+# ----------------------------------------------------------------
+# Required settings
+# ----------------------------------------------------------------
 # Base directory to save tests to.
 # I have two versions of ChaNGa I want to compare, one I call the 'control'
 # (which I think should be working right) and the other I call the 'test'
@@ -38,11 +44,13 @@ testBaseDir = 'results/temp/test'
 changaControlDir = '/usr/lusers/ibackus/scratch/changa_uw'
 changaTestDir = '/usr/lusers/ibackus/scratch/changa_uw2'
 # Define tests to run (on each of these versions)
+# This will run the agora-short test with different command line configure
+# options and will save it with the default testName
 tests = [
     newTestConfig('agora-short', '--enable-cooling=cosmo', testName=None),
     newTestConfig('agora-short', '--enable-cooling=cosmo --enable-rtforce=no', testName=None)
 ]
-    
+
 # ----------------------------------------------------------------
 # Set-up the test param files
 # ----------------------------------------------------------------
@@ -52,13 +60,13 @@ testSims = []
 # Run the control simulations
 for test in tests:        
     args, paramfile, simdir = runTest.makeparam(controlBaseDir, changaControlDir, 
-        test, overwrite, nproc, changa_args, runner=runner)
+        test, overwrite, nproc, changa_args, runner=runner, userconfigdir=userconfigdir)
     paramfiles.append(paramfile)
     controlSims.append(simdir)
 # Run the 'test' simulations
 for test in tests:        
     args, paramfile, simdir = runTest.makeparam(testBaseDir, changaTestDir, 
-        test, overwrite, nproc, changa_args, runner=runner)
+        test, overwrite, nproc, changa_args, runner=runner,userconfigdir=userconfigdir)
     paramfiles.append(paramfile)
     testSims.append(simdir)
 # Save a list of paramfiles (this can be used later to run the tests)

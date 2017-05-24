@@ -9,7 +9,9 @@ Created on Tue Oct  4 13:23:16 2016
 """
 from compchanga import runbuild, compare
 
-# Run script to generate param files
+# Run script to generate param files.  this script generates paramfiles which
+# is a list of run-time param files used by the test utilities for running
+# and compiling tests
 execfile('setup_agora_params.py')
 print 'Run param files:', paramfiles
 print 'Control sim directories:', controlSims
@@ -21,11 +23,11 @@ print 'Test sim directories:', testSims
 # this is useful for re-running after crashing
 #--------------------------
 # Build ChaNGa for the tests  (changa binary will be copied to simulation dirs)
-success = runbuild.buildChanga(paramfiles, newonly=True)
+success = runbuild.buildChanga(paramfiles, newonly=True, require_success=True)
 # Run the generated tests (contained in paramfiles)
 # Several can be run in parallel by specifying the number of jobs to spawn
 # with proc
-success = runbuild.runManyTests(paramfiles, newonly=True, proc=4)
+success = runbuild.runManyTests(paramfiles, newonly=True, proc=4, require_success=True)
 # Now analyze tests (looking at the first 2 simulation directories)
 print 'ANALYZING tests:'
 results = []
