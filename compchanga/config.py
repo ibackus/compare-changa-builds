@@ -28,3 +28,5 @@ icdirs = {'agora': 'agora',
 ICBaseDir = os.path.join(_directory, ICBaseDir)
 for k, v in icdirs.iteritems():
     icdirs[k] = os.path.join(ICBaseDir, v)
+# Keep a list of test names
+tests = icdirs.keys()

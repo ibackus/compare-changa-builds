@@ -1,0 +1,4 @@
+This folder should contain user-generated configure scripts for ChaNGa to 
+override those used by ChaNGa.  For example, this can be used to add 
+compile time flags to have finer control over ChaNGa when running tests.
+

@@ -366,7 +366,10 @@ def buildChanga(directory, nproc=None, copydir=None):
             # on the first try, but works on the second try
             p = shellRun('make -j {0}'.format(nproc))
         if p.returncode != 0:
-            raise RuntimeError, "Could not build ChaNGa"
+            msg = "Could not build ChaNGa in directory: " + directory
+            if copydir is not None:
+                msg += ", in order to copy to: " + copydir
+            raise RuntimeError, msg
         
         if copydir is not None:
             

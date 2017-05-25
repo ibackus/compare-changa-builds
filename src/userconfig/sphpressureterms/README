@@ -1,0 +1,4 @@
+This directory contains user-made configure stuff for configure ChaNGa with
+extra compile-time flags.  To use these, copy configure and Makefile.in to
+the ChaNGa directory before running the ChaNGa configure script.
+
