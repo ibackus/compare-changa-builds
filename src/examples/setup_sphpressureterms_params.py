@@ -69,6 +69,7 @@ tests = [
 paramfiles = []
 controlSims = []
 testSims = []
+testNames = [test['testName'] for test in tests]
 # Setup the control simulations
 for test in tests:        
     args, paramfile, simdir = runTest.makeparam(controlBaseDir, changaControlDir, 

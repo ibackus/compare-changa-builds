@@ -12,6 +12,73 @@ SimArray = pynbody.array.SimArray
 
 import diskpy
 import runTest
+import config
+
+def summarizeResults(result, testName):
+    """
+    Summarize test results.
+    
+    results should just be the direct output of the compareTests for testName
+    """
+    if testName in ('agora', 'agora-short'):
+        result, walls = result
+        print 'Mean fractional errors, averaged family-wise over all keys:'
+        print '  overall:', result['full']
+        print '  dark-matter:', result['dm']
+        print '  gas:', result['gas']
+        print '  metals:', result['metals']
+        print '  stars:', result['stars']
+        print 'walltime per step (run 1):', walls[0]
+        print 'walltime per step (run 2):', walls[1]
+        
+    
+    elif testName in ('sedov', 'shocktube', 'collapse'):
+        
+        print 'Mean fractional errors:'
+        print '  density:', result['rhoErr']
+        print '  temperature:', result['tempErr']
+        print '  velocity:', result['vErr']
+        print '  position', result['xErr']
+        print 'walltime per step (run 1):', result['walls'][0]
+        print 'walltime per step (run 2):', result['walls'][1]
+        
+    else:
+        
+        raise ValueError, 'No method for printing testName {}'.format(testName)
+
+def compareTests(directories, testName, runparamname='runparams.json'):
+    """
+    A convenience utility to compare results for two runs of a test.  This
+    is used to call one of the comparison functions.
+    
+    Parameters
+    ----------
+    directories : list or tuple-like
+        The two directories containing simulations to compare
+    testName : str
+        The name of the test. can be:
+            'shock'         - uses compareShock(...)
+            'sedov'         - uses compareSedov(...)
+            'agora'         - uses compareAgora(...)
+            'agora-short'   - uses compareAgora(...)
+            'collapse'      - uses compareCollapse(...)
+    
+    Returns
+    -------
+    results : 
+        output of the functions above
+    """
+    if testName in ('shock', 'collapse'):
+        return compareShock(directories, runparamname)
+    elif testName == 'sedov':
+        return compareSedov(directories, runparamname)
+    elif testName == 'shocktube':
+        return compareShock(directories, runparamname)
+    elif testName in ('agora', 'agora-short'):
+        return compareAgora(directories, runparamname)
+    else:
+        raise ValueError, 'No function defined to compare testName: {}'\
+            .format(testName)
 
 def compareShock(directories, runparamname='runparams.json'):
     """
@@ -60,7 +127,6 @@ def compareSedov(directories, runparamname='runparams.json', vthresh=1e-9):
     ICs = [f[mask] for f in ICs]
     
     return compareShock((fs, ICs, runPars, lognames), runparamname)
-    
 
 def compareAgora(directories, runparamname='runparams.json'):
     """
@@ -100,7 +166,7 @@ def compareAgora(directories, runparamname='runparams.json'):
     vErr = velErr(gas, gasICs)
     tempErr = err1D(gas, 'temp', gasICs)
     rhoErr = err1D(gas, 'rho')
-    scores['gas'] = np.mean((xErr, vErr, tempErr, rhoErr))
+    scores['gas'] = np.nanmean((xErr, vErr, tempErr, rhoErr))
     otherkeys = ['metals',
                  'HI',
                  'OxMassFracdot',
@@ -112,22 +178,27 @@ def compareAgora(directories, runparamname='runparams.json'):
                  'HeII',
                  'OxMassFrac']
     metalsErrs = []
+    # Get keys present in both simulations
+    all_keys = list(set.intersection(*[set(g.all_keys()) for g in gas]))
     for key in otherkeys:
-        metalsErrs.append(err1D(gas, key))
-    scores['metals'] = np.mean(metalsErrs)
+        if key in all_keys:
+            metalsErrs.append(err1D(gas, key))
+        else:
+            print 'array {} missing'.format(key)
+    scores['metals'] = np.nanmean(metalsErrs)
     
     print '\n Comparing stars'
     stars = intersectSnaps([f.s for f in fs + ICs])
     stars, starICs = (stars[0:2], stars[2:])
     xErr = posErr(stars, starICs)
     vErr = velErr(stars, starICs)
-    scores['stars'] = np.mean((xErr, vErr))
+    scores['stars'] = np.nanmean((xErr, vErr))
     
     print '\nWalltime:'
     
     walls = walltimes(lognames)
     
-    return scores
+    return scores, walls
 
 # ---------------------------------------------------------------------
 # Generic utilities
