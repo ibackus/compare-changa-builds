@@ -8,19 +8,8 @@ Created on Tue May 23 12:08:24 2017
 import os
 _directory = os.path.dirname(os.path.realpath(__file__))
 
-# -------------------------------------------
-# Settings
-# -------------------------------------------
-# Charm directory (needed to build ChaNGa)
-charm_dir='/usr/lusers/ibackus/charm'
-# Base directory containing the test ICs
-ICBaseDir = '../tests'
-# Directories containing test ICs (sub-directories of ICBaseDir)
-icdirs = {'agora': 'agora',
-          'sedov': 'sedov',
-          'collapse': 'collapse',
-          'shocktube': 'shocktube',
-          'agora-short': 'agora-short'}
+execfile(os.path.join(_directory, '_default_config.py'))
+execfile(os.path.join(_directory, '_user_config.py'))
 # -------------------------------------------
 # Setup
 # -------------------------------------------
