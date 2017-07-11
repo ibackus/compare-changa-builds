@@ -236,12 +236,13 @@ def safe_copy_tree(src, dst, **kwargs):
     
     return dir_util.copy_tree(src, dst, **kwargs)
     
-def shellRun(cmd, verbose=True, logfile=None, returnStdOut=False):
+def shellRun(cmd, verbose=True, logfile=None, returnStdOut=False, env=None):
     """
     Try to run the basic shell command (can only run command + opts, no piping)
     """
     output = subprocess.PIPE
-    p = subprocess.Popen(cmd.split(), stderr=subprocess.STDOUT, stdout=output)
+    p = subprocess.Popen(cmd.split(), stderr=subprocess.STDOUT, stdout=output,
+                         env=env)
     printer = logPrinter(verbose, logfile, overwrite=True)
     lines = []
     try:
@@ -403,13 +404,14 @@ def configureChanga(directory, configOpts='', charm_dir=None, verbose=True,
             
             charm_dir = os.path.abspath(charm_dir)
             os.environ['CHARM_DIR'] = charm_dir
-            
+        
         os.chdir(directory)
         cmd = './configure ' + configOpts
         print 'userconfigdir', userconfigdir
         with _CopyUserConfig(userconfigdir, os.getcwd()):
             
-            p = shellRun(cmd, verbose, logfilename)
+            my_env = os.environ.copy()
+            p = shellRun(cmd, verbose, logfilename, env=my_env)
             if p.returncode != 0:
                 
                 raise RuntimeError, "Could not configure ChaNGa"
