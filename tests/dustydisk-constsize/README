@@ -1,0 +1,12 @@
+Josef Rucska
+McMaster University
+Oct 11, 2017
+
+Test files for a protoplanetary disk with 10^5 particles. The disk is set up to emulate the "steep" profile disk from Gonzalez, Laibe, and Maddison (2017, MNRAS 467).
+
+The included picture "plots.png" show the radial distribution of the total (gas + dust) surface density and gas temperature in the disk. The orange lines in these plots are what the quantities should be according to the Gonzalez et al. set up, and the blue dots are the data from the disk. The other plot on the left side of the plots.png image shows how changing the fragmentation velocity (dVfrag in the .param file) changes the "s_frag" values in the disk, much like figure A1 in Gonzalez et al. Notice for this disk we need to use a much higher Vfrag, ~130 m/s, in order to get the same shape for this curve as in figure A1. Not currently sure why this is the case.
+
+The plot on the right is from a running this simulation for 12 orbits, and is set up to mimic Figure 2 in Gonzalez et al.
+
+
+Vfrag in the param file is currently set to 130 m/s, equal to 4.36384e-3 in code units when dKpcUnit = 4.84813680873e-09 (so 1 code length is 1 AU) and dMsolUnit = 1 (so 1 code mass unit is 1 solar mass).

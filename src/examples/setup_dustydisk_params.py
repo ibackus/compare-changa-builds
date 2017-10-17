@@ -45,8 +45,8 @@ verbose = True
 # I have two versions of ChaNGa I want to compare, one I call the 'control'
 # (which I think should be working right) and the other I call the 'test'
 # Simulations will be saved in sub-directories of these folders
-controlBaseDir = 'results/temp/control'
-testBaseDir = 'results/temp/test'
+controlBaseDir = 'results/control'
+testBaseDir = 'results/test'
 # Directories containing ChaNGa to run, in this case the 'test' and 'control'
 # copies of ChaNGa
 changaControlDir = '/home/ibackus/ChaNGa/changa_uw-copy/changa'
@@ -55,18 +55,18 @@ changaTestDir = '/home/ibackus/ChaNGa/changa_uw/changa'
 # NOTE: grainsize and graindensity are extra parameters that I use here to
 # see which build versions can have the ChaNGa runtime params of grainsize/density
 controlTests = [
-    newTestConfig('dustydisk', '--enable-dustygas --enable-dustgrowth',
-                  paramname='graingrowth.param'),
-    newTestConfig('dustydisk', '--enable-dustygas', 
+#    newTestConfig('dustydisk', '--enable-dustygas --enable-dustgrowth',
+#                  paramname='graingrowth.param'),
+    newTestConfig('dustydisk-constsize', '--enable-dustygas', 
         paramname='graingrowth.param'),
-    newTestConfig('dustydisk', paramname='nodust.param'),
+#    newTestConfig('dustydisk', paramname='nodust.param'),
 ]
 testTests = [
-    newTestConfig('dustydisk', '--enable-dustygas=onefluid --enable-dustgrowth',
-                  paramname='graingrowth.param'),
-    newTestConfig('dustydisk', '--enable-dustygas=onefluid', 
+#    newTestConfig('dustydisk', '--enable-dustygas=onefluid --enable-dustgrowth',
+#                  paramname='graingrowth.param'),
+    newTestConfig('dustydisk-constsize', '--enable-dustygas=onefluid', 
         paramname='constant_grain_size.param'),
-    newTestConfig('dustydisk', paramname='nodust.param'),
+#    newTestConfig('dustydisk', paramname='nodust.param'),
 ]
 
 # ----------------------------------------------------------------

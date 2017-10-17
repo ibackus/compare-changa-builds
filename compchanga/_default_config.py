@@ -23,4 +23,5 @@ icdirs = {'agora': 'agora',
           'collapse': 'collapse',
           'shocktube': 'shocktube',
           'agora-short': 'agora-short',
-          'dustydisk': 'dustydisk'}
+          'dustydisk': 'dustydisk',
+          'dustydisk-constsize': 'dustydisk-constsize'}
