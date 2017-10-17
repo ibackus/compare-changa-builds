@@ -39,10 +39,12 @@ def saveParamList(paramfiles, logsavename):
         f.write('\n')
         print 'saved run param file list to', logsavename
         
-def newTestConfig(name, configOpts='', testName=None):
+def newTestConfig(name, configOpts='', testName=None, **kwargs):
     """
     Creates a default test-option configuration dict
     These are kwargs to be used by runTest()
+    
+    kwargs are stored as-is in the test config
     """
     if testName is None:
         
@@ -51,6 +53,7 @@ def newTestConfig(name, configOpts='', testName=None):
     basicTestConfig = {'directory': config.icdirs[name],
                        'configOpts': configOpts,
                        'testName': testName}
+    basicTestConfig.update(kwargs)
     return basicTestConfig
 
 def makeparam(baseSaveDir, changaDir, testDict, overwrite=True, nproc=None, 
@@ -93,8 +96,7 @@ def makeparam(baseSaveDir, changaDir, testDict, overwrite=True, nproc=None,
 
 def runTest(directory, configOpts='', outputDir='.', 
             testName='test', paramname=None, reconfigure=True, runner=None, 
-            nproc=None, changa_args='', charm_dir=None, changaDir=None, 
-             **kwargs):
+            nproc=None, changa_args='', charm_dir=None, **kwargs):
     """
     Will run a changa test simulation
     
@@ -113,7 +115,7 @@ def runTest(directory, configOpts='', outputDir='.',
         Prefix to give the test directory name.  This should be present to 
         ensure the uniqueness of the save directory name
     paramname : str
-        (optional) name of the .param file
+        (optional) name of the .param file relative to directory
     runner : str
         (optional) defaults to charmrun in the ChaNGa directory
     nproc : int
@@ -139,9 +141,8 @@ def runTest(directory, configOpts='', outputDir='.',
     paramfilename = os.path.split(paramname)[-1]
     # Use absolute paths
     directory = os.path.abspath(directory)
-    if changaDir is None:
-        # Use ChaNGa in the run directory
-        changaDir = os.path.abspath(outputDir)
+    # Use ChaNGa in the run directory
+    changaDir = os.path.abspath(outputDir)
     
     # Set up ChaNGa command
     if runner is None:

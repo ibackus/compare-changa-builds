@@ -1,0 +1,54 @@
+# Dust
+dDustGrainDensity        = 1683294.27872
+dDustVfrag               = 4.36384e-3
+dDustAlphaSS             = 0.1
+
+# Time-stepping
+dDelta                   = 28.5036324045
+dDumpFrameStep           = 10
+dEta                     = 0.2
+dEtaCourant              = 0.3
+nSteps                   = 10 # 12400
+
+# I/O
+achInFile                = 1e5SteepPPD.std
+achOutName               = 1e5Steepppd
+bDoIOrderOutput          = 1
+bParaRead                = 1
+bParaWrite               = 0
+bStandard                = 1
+bVDetails                = 1
+iBinaryOutput            = 2
+iCheckInterval           = 620
+iLogInterval             = 100
+iOutInterval             = 31
+
+# SPH
+nSmooth                  = 128
+dMeanMolWeight           = 2.0
+bDoCSound                = 1
+bDoDensity               = 0
+bDoGas                   = 1
+bFastGas                 = 1
+bGasAdiabatic            = 0
+bGasIsothermal           = 1
+bViscosityLimiter        = 1
+dConstAlpha              = 0.1
+dConstBeta               = 0.5
+dConstGamma              = 1.4
+dFracFastGas             = 0.1
+
+# Sinks
+bDoSinks                 = 1
+dSinkBoundOrbitRadius    = 4.55425214767
+dSinkMassMin             = 0.9
+dSinkRadius              = 4.55425214767
+
+# Other
+dKpcUnit                 = 4.84813680873e-09
+dMsolUnit                = 1
+bKDK                     = 1
+dExtraStore              = 0.5
+dTheta                   = 0.7
+iMaxRung                 = 30
+

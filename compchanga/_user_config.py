@@ -17,4 +17,4 @@ Created on Thu May 25 17:33:43 2017
 # Settings
 # -------------------------------------------
 # Charm directory (needed to build ChaNGa)
-charm_dir='/path/to/charm'
+charm_dir='/home/ibackus/charm'

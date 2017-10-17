@@ -76,9 +76,77 @@ def compareTests(directories, testName, runparamname='runparams.json'):
         return compareShock(directories, runparamname)
     elif testName in ('agora', 'agora-short'):
         return compareAgora(directories, runparamname)
+    elif testName == 'dustydisk':
+        return compareDustyDisk(directories, runparamname)
     else:
         raise ValueError, 'No function defined to compare testName: {}'\
             .format(testName)
+            
+def compareDustyDisk(directories, runparamname='runparams.json'):
+    """
+    Compare the results between two dustydisk tests
+    
+    directories can be a list of directories or a list of simsnaps
+    
+    Returns a dict of 'scores'.  scores are the mean error for different 
+    quantities on a family-level basis, i.e. position and velocity for 
+    dark matter, gas is position, velocity, temperature, and density,
+    and metals is for all metals arrays
+    """
+    
+    fs, ICs, runPars, lognames = loadCompareDirs(directories, runparamname)
+    # shorten the snapshots
+    allSnaps = intersectSnaps(fs+ICs)
+    fs = allSnaps[0:2]
+    ICs = allSnaps[2:]
+    scores = {}
+    
+    print '\nComparing full simulation'
+    xErr = posErr(fs, ICs)
+    vErr = velErr(fs, ICs)
+    scores['full'] = np.mean((xErr, vErr))
+    
+    print '\nComparing gas'
+    gas = intersectSnaps([f.g for f in fs + ICs])
+    gas, gasICs = (gas[0:2], gas[2:])
+    xErr = posErr(gas, gasICs)
+    vErr = velErr(gas, gasICs)
+    tempErr = err1D(gas, 'temp')
+    rhoErr = err1D(gas, 'rho')
+    scores['gas'] = np.nanmean((xErr, vErr, tempErr, rhoErr))
+    otherkeys = [
+            'dustFrac',
+            'dustGrainSize',
+            'dustFracDot',
+            ]
+    dustErrs = []
+    # Get keys present in both simulations
+    all_keys = list(set.intersection(*[set(g.all_keys()) for g in gas]))
+    for key in otherkeys:
+        if key in all_keys:
+            dustErrs.append(err1D(gas, key))
+        else:
+            print 'array {} missing'.format(key)
+    scores['dust'] = np.nanmean(dustErrs)
+    
+    print '\n Comparing stars'
+    stars = intersectSnaps([f.s for f in fs + ICs])
+    stars, starICs = (stars[0:2], stars[2:])
+    xErr = posErr(stars, starICs)
+    vErr = velErr(stars, starICs)
+    scores['stars'] = np.nanmean((xErr, vErr))
+    all_keys = list(set.intersection(*[set(g.all_keys()) for g in stars]))
+    if 'dustFrac' in all_keys:
+        scores['star_dustFrac'] = err1D(stars, 'dustFrac')
+    
+    print '\nWalltime:'
+    try:
+        walls = walltimes(lognames)
+    except IndexError:
+        "Could not load walltime"
+        walls = None
+    
+    return scores, walls
 
 def compareShock(directories, runparamname='runparams.json'):
     """
@@ -289,8 +357,13 @@ def loadResults(directories, paramname=None):
     """
     Loads the final output snapshots in 'directories'
     """
+    if not hasattr(paramname, '__iter__'):
+        paramnames = [paramname] * len(directories)
+    else:
+        paramnames = paramname
     
-    fnames = [findSnapshots(directory, paramname) for directory in directories]
+    fnames = [findSnapshots(directory, paramname) 
+        for directory, paramname in zip(directories, paramnames)]
     resultnames = [flist[-1] for flist in fnames]
     
     fs = [pynbody.load(fname) for fname in resultnames]
@@ -301,8 +374,13 @@ def loadICs(directories, paramname=None):
     """
     """
     if hasattr(directories, '__iter__'):
+        if not hasattr(paramname, '__iter__'):
+            paramnames = [paramname] * len(directories)
+        else:
+            paramnames = paramname
         
-        return [loadICs(directory, paramname) for directory in directories]
+        return [loadICs(directory, paramname) 
+                for directory, paramname in zip(directories, paramname)]
     
     directory = directories
     paramname = runTest.findParam(directory, paramname)
@@ -369,9 +447,11 @@ def loadCompareDirs(directories, runparamname='runparams.json'):
     Loads final results and run parameters of two comparison directories
     """        
     runPars = loadRunPars(directories, runparamname)
-    fs = loadResults(directories)
-    lognames = [getLogName(directory) for directory in directories]
-    ICs = loadICs(directories)
+    paramnames = [p.get('paramname', None) for p in runPars]
+    fs = loadResults(directories, paramnames)
+    lognames = [getLogName(directory, paramname) 
+        for directory, paramname in zip(directories, paramnames)]
+    ICs = loadICs(directories, paramnames)
     
     return fs, ICs, runPars, lognames
 
